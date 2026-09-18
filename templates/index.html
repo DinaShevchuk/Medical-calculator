@@ -1,0 +1,51 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles/style.css">
+</head>
+<body>
+<div class="phone">
+    <div class="container">
+        <div class="feed-page">
+            {{ if .error }}
+            <div class="error-message">{{ .error }}</div>
+            {{ else }}
+            <div class="image-wrapper-big">
+                <video src="http://localhost:9000/media/{{ .service.VideoKey }}" alt="{{ .service.Title }}" autoplay muted loop></video>
+                <div class="card-info-big">
+                    <div class="main-info">
+                        <span class="card-title-big">{{ .service.Title }}</span>
+                        {{ if and (ne .service.Concentration.Mg 0) (ne .service.Concentration.Ml 0) }}
+                        <span> Концентрация: {{ .service.Concentration.Mg }} мг / {{ .service.Concentration.Ml }} мл </span>
+                        {{ end }}
+                        <span> Доза: {{ .service.AdultDose }} мг/кг </span>
+                        <div class="likes-count-big"> {{ .likeCount }} </div>
+                        <div class="likes-badge">
+                            <img src="/static/icons/like-not-activate.png" alt="Лайки" class="heart-icon-big">
+                        </div>
+                    </div>
+
+                    <details class="more-details">
+                        <summary>
+                            <span class="more-text">подробнее</span>
+                            <span class="less-text">свернуть</span>
+                        </summary>
+                        <div class="extra-info-content">
+                            <p class="description-text">{{ .service.Description }}</p>
+                        </div>
+                    </details>
+                </div>
+                <a href="/feed/{{ .service.ID }}?next=true" class="next-btn">
+                    <img src="/static/icons/next.png" alt="Следующий" class="travel-icon-big">
+                </a>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+    {{ template "nav.html" . }}
+</div>
+</body>
+</html>
