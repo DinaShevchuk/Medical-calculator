@@ -1,17 +1,37 @@
 services:
-  minio:
-    container_name: minio_storage
-    image: minio/minio:latest
+  adminer:
+    image: adminer:latest
+    restart: unless-stopped
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "8081:8080"
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:15
+    container_name: dosage_drugs_postgres
+    restart: unless-stopped
     environment:
-      MINIO_ROOT_USER: root
-      MINIO_ROOT_PASSWORD: rootpassword
-      MINIO_CONSOLE_ADDRESS: ":9001"
+      POSTGRES_USER: student
+      POSTGRES_PASSWORD: student
+      POSTGRES_DB: dosage_drugs
+    ports:
+      - "5435:5432"
     volumes:
-      - minio-data:/data
+      - pgdata:/var/lib/postgresql/data
+  minio:
+    image: minio/minio:latest
+    container_name: dosage_drugs_minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"  # Порт для API (сюда будут стучаться картинки)
+      - "9001:9001"  # Порт для веб-консоли управления
+    environment:
+      MINIO_ROOT_USER: minioadmin      # Логин для входа
+      MINIO_ROOT_PASSWORD: minioadmin  # Пароль для входа
     command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
 
 volumes:
-  minio-data:
+  pgdata:
+  minio_data:

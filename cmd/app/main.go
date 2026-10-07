@@ -1,6 +1,6 @@
 package main
 
-import "Medical_pediatric_calculator/internal/api"
+import "dosage_drugs/internal/api"
 
 func main() {
 	api.StartServer()

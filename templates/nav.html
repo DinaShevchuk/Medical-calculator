@@ -1,18 +1,11 @@
-<!-- templates/nav.html -->
 <nav class="bottom-nav">
-  <div class="bottom">
-    <a href="/grid" {{ if eq .ActiveTab "grid" }}class="active"{{ end }}>
-    <img src="/static/icons/heart.png" alt="Плитка" class="nav-icon" style="height: 65px">
+    <a href="/drugs/liked" {{ if eq .ActiveTab "likes_drug" }}class="active"{{ end }}>
+    <img src="/static/icons/heart.png" alt="Лайкнутые" class="nav-icon" style="height: 65px">
     </a>
-  </div>
-  <div class="bottom">
-    <a href="/feed/1" {{ if eq .ActiveTab "feed" }}class="active"{{ end }}>
-    <img src="/static/icons/home.png" alt="Дом" class="nav-icon" style="height: 60px">
-    </a>
-  </div>
-  <div class="bottom">
-    <a href="/add" {{ if eq .ActiveTab "add" }}class="active"{{ end }}>
+    <a href="/drugs/add" {{ if eq .ActiveTab "add_drug" }}class="active"{{ end }}>
     <img src="/static/icons/plus.png" alt="Добавить" class="nav-icon" style="height: 68px">
     </a>
-  </div>
+    <a href="/drugs" {{ if eq .ActiveTab "drug_info" }}class="active"{{ end }}>
+    <img src="/static/icons/home.png" alt="Дом" class="nav-icon" style="height: 60px">
+    </a>
 </nav>

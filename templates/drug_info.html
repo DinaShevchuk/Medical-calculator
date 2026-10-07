@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles/style.css">
+</head>
+<body>
+<div class="phone">
+    <div class="container">
+        <div class="feed-page">
+            {{ if .error }}
+            <div class="error-message">{{ .error }}</div>
+            {{ else }}
+            <div class="image-wrapper-big"
+                 style="background-image: url('/static/defaults/video.mp4');
+                        background-size: cover;
+                        background-position: center;">
+
+                {{ if .drug.VideoKey }}
+                <video src="http://localhost:9000/media/{{ .drug.VideoKey }}"
+                       autoplay muted loop playsinline
+                       onerror="this.onerror=null; this.src='/static/defaults/video.mp4'; this.load();"></video>
+                {{ else }}
+                <video src="/static/defaults/video.mp4" autoplay muted loop playsinline></video>
+                {{ end }}
+
+                <div class="top-right-info">
+                    <div class="likes-badge">
+                        <img src="/static/icons/like-not-activate.png" alt="Лайки" class="heart-icon-big">
+                        <span class="likes-count-big">{{ .likeCount }}</span>
+                    </div>
+                    <div class="info-pill">Доза: {{ .drug.AdultDose }} мг/кг</div>
+                    <div class="info-pill">
+                        Концентрация: {{ .drug.Concentration }}%
+                    </div>
+                </div>
+
+                <div class="card-info-big" id="cardInfo">
+                    <div class="main-info">
+                        <span class="card-title-big">{{ .drug.Title }}</span>
+                    </div>
+                    <div class="description-block">
+                        <input type="checkbox" id="descToggle" class="desc-toggle-input">
+                        <p class="description-text" id="descText">{{ .drug.Description }}</p>
+                        <label for="descToggle" class="more-btn" id="moreBtn"></label>
+                    </div>
+                </div>
+
+                <a href="/drugs/{{ .drug.ID }}?next=true" class="next-btn">
+                    <img src="/static/icons/next.png" alt="Следующий" class="travel-icon-big">
+                </a>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+    {{ template "nav.html" . }}
+</div>
+</body>
+</html>

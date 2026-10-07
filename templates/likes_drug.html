@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles/style.css">
+</head>
+<body>
+<div class="phone">
+    <div class="container">
+        <div class="grid-page">
+            <div class="card-head">
+                <button type="submit" id="filterBtn" class="filter-btn" form="filterForm">
+                    <img src="/static/icons/filter.png" alt="Фильтр" class="icon">
+                </button>
+
+                <form action="/LikesDrug" method="GET" class="dose-filter" id="filterForm">
+                    <div class="range-values">
+                        <span id="minValue">{{ .MinDose }}</span>
+                        <span id="maxValue">{{ .MaxDose }}</span>
+                    </div>
+
+                    <div class="range-slider" id="rangeSlider">
+                        <div class="slider-track"></div>
+                        <div class="slider-range" id="sliderRange"></div>
+                        <input type="range" min="0" max="100" value="{{ .MinDose }}" id="minRange" name="min">
+                        <input type="range" min="0" max="100" value="{{ .MaxDose }}" id="maxRange" name="max">
+                    </div>
+                </form>
+            </div>
+
+            <div class="grid-container" id="gridContainer">
+                {{ if .drugs }}
+                {{ range .drugs }}
+                <div class="grid-item">
+                    <div class="image-wrapper" style="background-image: url('/static/defaults/image.png'); background-size: cover; background-position: center;">
+                        <a href="/drugs/{{ .ID }}">
+                            {{ if .ImageKey }}
+                            <img src="http://localhost:9000/media/{{ .ImageKey }}" alt="{{ .Title }}">
+                            {{ end }}
+
+                            <div class="likes-badge">
+                                <img src="/static/icons/like-activate.png" alt="Лайки" class="heart-icon">
+                                <span class="likes-count">{{ .LikeCount }}</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-title">{{ .Title }}</span>
+                                <span> Доза: {{ .AdultDose }} мг/кг </span>
+                                <span> Концентрация: {{ .Concentration }} % </span>
+                            </div>
+                        </a>
+
+                        <form action="/drugs/delete" method="POST" class="delete-form">
+                            <input type="hidden" name="drug_id" value="{{ .ID }}">
+                            <button type="submit" class="delete-btn" title="Удалить">
+                                <img src="/static/icons/delete.png" alt="Удалить" class="delete-icon">
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {{ end }}
+                {{ else }}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px 0; color: #00266c; font-size: 18px;">
+                    Препараты с дозой в диапазоне {{ .MinDose }}–{{ .MaxDose }} мг/кг не найдены
+                </div>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+    {{ template "nav.html" . }}
+</div>
+</body>
+</html>
