@@ -33,7 +33,7 @@
 | image_key | varchar(255) | имя файла-картинки в MinIO |
 | video_key | varchar(255) | имя файла-видео в MinIO |
 | adult_dose | int | взрослая доза, мг/кг |
-| concentration_percent | float | концентрация, % |
+| concentration | float | концентрация, % |
 | creator_id | int | FK → users.id |
 | created_at | timestamp | дата создания |
 | formed_at | timestamp | дата публикации |
