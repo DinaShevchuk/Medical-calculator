@@ -32,8 +32,8 @@
 | status | varchar(20) | черновик / опубликован / Удален |
 | image_key | varchar(255) | имя файла-картинки в MinIO |
 | video_key | varchar(255) | имя файла-видео в MinIO |
-| adult_dose | int | взрослая доза, мг/кг |
-| concentration | float | концентрация, % |
+| adult_dose | int | взрослая доза в  мг/кг |
+| concentration | float | концентрация в % |
 | creator_id | int | FK → users.id |
 | created_at | timestamp | дата создания |
 | formed_at | timestamp | дата публикации |
