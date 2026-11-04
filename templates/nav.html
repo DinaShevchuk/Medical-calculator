@@ -1,11 +1,11 @@
 <nav class="bottom-nav">
-    <a href="/drugs/liked" {{ if eq .ActiveTab "likes_drug" }}class="active"{{ end }}>
+    <a href="/dosage_drugs/liked" {{ if eq .ActiveTab "likes_dosage_drugs" }}class="active"{{ end }}>
     <img src="/static/icons/heart.png" alt="Лайкнутые" class="nav-icon" style="height: 65px">
     </a>
-    <a href="/drugs/add" {{ if eq .ActiveTab "add_drug" }}class="active"{{ end }}>
+    <a href="/dosage_drugs/add" {{ if eq .ActiveTab "add_dosage_drugs" }}class="active"{{ end }}>
     <img src="/static/icons/plus.png" alt="Добавить" class="nav-icon" style="height: 68px">
     </a>
-    <a href="/drugs" {{ if eq .ActiveTab "drug_info" }}class="active"{{ end }}>
+    <a href="/dosage_drugs" {{ if eq .ActiveTab "dosage_drugs_info" }}class="active"{{ end }}>
     <img src="/static/icons/home.png" alt="Дом" class="nav-icon" style="height: 60px">
     </a>
 </nav>

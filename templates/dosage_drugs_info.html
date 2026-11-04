@@ -17,8 +17,8 @@
                         background-size: cover;
                         background-position: center;">
 
-                {{ if .drug.VideoKey }}
-                <video src="http://localhost:9000/media/{{ .drug.VideoKey }}"
+                {{ if .dosage_drugs.VideoKey }}
+                <video src="http://localhost:9000/media/{{ .dosage_drugs.VideoKey }}"
                        autoplay muted loop playsinline
                        onerror="this.onerror=null; this.src='/static/defaults/video.mp4'; this.load();"></video>
                 {{ else }}
@@ -30,24 +30,24 @@
                         <img src="/static/icons/like-not-activate.png" alt="Лайки" class="heart-icon-big">
                         <span class="likes-count-big">{{ .likeCount }}</span>
                     </div>
-                    <div class="info-pill">Доза: {{ .drug.AdultDose }} мг/кг</div>
+                    <div class="info-pill">Доза: {{ .dosage_drugs.AdultDose }} мг/кг</div>
                     <div class="info-pill">
-                        Концентрация: {{ .drug.Concentration }}%
+                        Концентрация: {{ .dosage_drugs.Concentration }}%
                     </div>
                 </div>
 
                 <div class="card-info-big" id="cardInfo">
                     <div class="main-info">
-                        <span class="card-title-big">{{ .drug.Title }}</span>
+                        <span class="card-title-big">{{ .dosage_drugs.Title }}</span>
                     </div>
                     <div class="description-block">
                         <input type="checkbox" id="descToggle" class="desc-toggle-input">
-                        <p class="description-text" id="descText">{{ .drug.Description }}</p>
+                        <p class="description-text" id="descText">{{ .dosage_drugs.Description }}</p>
                         <label for="descToggle" class="more-btn" id="moreBtn"></label>
                     </div>
                 </div>
 
-                <a href="/drugs/{{ .drug.ID }}?next=true" class="next-btn">
+                <a href="/dosage_drugs/{{ .dosage_drugs.ID }}?next=true" class="next-btn">
                     <img src="/static/icons/next.png" alt="Следующий" class="travel-icon-big">
                 </a>
             </div>

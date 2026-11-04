@@ -27,13 +27,13 @@ func (h *Handler) GetDrug(c *gin.Context) {
 			newID, err := h.Repository.GetNextDrugID(currID)
 			if err != nil {
 				logrus.Error(err)
-				c.HTML(http.StatusOK, "drug_info.html", gin.H{
+				c.HTML(http.StatusOK, "dosage_drugs_info.html", gin.H{
 					"error":     "Препарат не найден",
-					"ActiveTab": "drug_info",
+					"ActiveTab": "dosage_drugs_info",
 				})
 				return
 			}
-			c.Redirect(http.StatusFound, fmt.Sprintf("/drugs/%d", newID))
+			c.Redirect(http.StatusFound, fmt.Sprintf("/dosage_drugs/%d", newID))
 			return
 		}
 	}
@@ -41,57 +41,57 @@ func (h *Handler) GetDrug(c *gin.Context) {
 	if idStr == "" {
 		firstID, err := h.Repository.GetFirstPublishedID()
 		if err != nil || firstID == 0 {
-			c.HTML(http.StatusOK, "drug_info.html", gin.H{
+			c.HTML(http.StatusOK, "dosage_drugs_info.html", gin.H{
 				"error":     "Нет опубликованных препаратов",
-				"ActiveTab": "drug_info",
+				"ActiveTab": "dosage_drugs_info",
 			})
 			return
 		}
-		c.Redirect(http.StatusFound, fmt.Sprintf("/drugs/%d", firstID))
+		c.Redirect(http.StatusFound, fmt.Sprintf("/dosage_drugs/%d", firstID))
 		return
 	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		c.HTML(http.StatusOK, "drug_info.html", gin.H{
+		c.HTML(http.StatusOK, "dosage_drugs_info.html", gin.H{
 			"error":     "Неверный ID",
-			"ActiveTab": "drug_info",
+			"ActiveTab": "dosage_drugs_info",
 		})
 		return
 	}
 
-	drug, err := h.Repository.GetDrugByIDCursor(id)
-	if err != nil || drug == nil {
+	dosage_drugs, err := h.Repository.GetDrugByIDCursor(id)
+	if err != nil || dosage_drugs == nil {
 		firstID, ferr := h.Repository.GetFirstPublishedID()
 		if ferr == nil && firstID > 0 && firstID != id {
-			c.Redirect(http.StatusFound, fmt.Sprintf("/drugs/%d", firstID))
+			c.Redirect(http.StatusFound, fmt.Sprintf("/dosage_drugs/%d", firstID))
 			return
 		}
-		c.HTML(http.StatusOK, "drug_info.html", gin.H{
+		c.HTML(http.StatusOK, "dosage_drugs_info.html", gin.H{
 			"error":     "Препарат не найден",
-			"ActiveTab": "drug_info",
+			"ActiveTab": "dosage_drugs_info",
 		})
 		return
 	}
 
-	c.HTML(http.StatusOK, "drug_info.html", gin.H{
-		"drug":      drug,
-		"likeCount": h.Repository.GetLikesCount(drug.ID),
-		"ActiveTab": "drug_info",
+	c.HTML(http.StatusOK, "dosage_drugs_info.html", gin.H{
+		"dosage_drugs":      dosage_drugs,
+		"likeCount": h.Repository.GetLikesCount(dosage_drugs.ID),
+		"ActiveTab": "dosage_drugs_info",
 	})
 }
 
-// GET /drugs/add
+// GET /dosage_drugs/add
 func (h *Handler) GetAddDrug(c *gin.Context) {
 	stepStr := c.Query("step")
 
 	draft, err := h.Repository.GetDraftByCreator(repository.CurrentUserID)
 
 	if err != nil {
-		c.HTML(http.StatusOK, "add_drug.html", gin.H{
-			"ActiveTab": "AddDrug",
+		c.HTML(http.StatusOK, "add_dosage_drugs.html", gin.H{
+			"ActiveTab": "add_dosage_drugs",
 			"Step":      1,
-			"drug":      ds.Drug{},
+			"dosage_drugs":      ds.Dosage_drugs{},
 		})
 		return
 	}
@@ -101,27 +101,27 @@ func (h *Handler) GetAddDrug(c *gin.Context) {
 		step = 1
 	}
 
-	c.HTML(http.StatusOK, "add_drug.html", gin.H{
-		"drug":      draft,
-		"ActiveTab": "AddDrug",
+	c.HTML(http.StatusOK, "add_dosage_drugs.html", gin.H{
+		"dosage_drugs":      draft,
+		"ActiveTab": "add_dosage_drugs",
 		"Step":      step,
 	})
 }
 
-// POST /drugs/create
+// POST /dosage_drugs/create
 func (h *Handler) CreateDraft(c *gin.Context) {
     if existing, err := h.Repository.GetDraftByCreator(repository.CurrentUserID); err == nil && existing.ID != 0 {
-        c.Redirect(http.StatusFound, "/drugs/add?step=2")
+        c.Redirect(http.StatusFound, "/dosage_drugs/add?step=2")
         return
     }
 
     title := c.PostForm("title")
     if title == "" {
-        c.HTML(http.StatusOK, "add_drug.html", gin.H{
+        c.HTML(http.StatusOK, "add_dosage_drugs.html", gin.H{
             "error":     "Название не может быть пустым",
-            "ActiveTab": "add_drug",
+            "ActiveTab": "add_dosage_drugs",
             "Step":      1,
-            "drug":      ds.Drug{},
+            "dosage_drugs":      ds.Dosage_drugs{},
         })
         return
     }
@@ -159,22 +159,22 @@ func (h *Handler) CreateDraft(c *gin.Context) {
     _, err := h.Repository.CreateDraft(repository.CurrentUserID, title, imageKey, videoKey)
     if err != nil {
         logrus.Error(err)
-        c.HTML(http.StatusOK, "add_drug.html", gin.H{
+        c.HTML(http.StatusOK, "add_dosage_drugs.html", gin.H{
             "error":     "Ошибка создания черновика: " + err.Error(),
-            "ActiveTab": "add_drug",
+            "ActiveTab": "add_dosage_drugs",
             "Step":      1,
-            "drug":      ds.Drug{Title: title},
+            "dosage_drugs":      ds.Dosage_drugs{Title: title},
         })
         return
     }
 
-    c.Redirect(http.StatusFound, "/drugs/add?step=2")
+    c.Redirect(http.StatusFound, "/dosage_drugs/add?step=2")
 }
-// POST /drugs/publish
+// POST /dosage_drugs/publish
 func (h *Handler) PublishDrug(c *gin.Context) {
 	id, err := strconv.Atoi(c.PostForm("id"))
 	if err != nil {
-		c.Redirect(http.StatusFound, "/drugs/add")
+		c.Redirect(http.StatusFound, "/dosage_drugs/add")
 		return
 	}
 
@@ -184,11 +184,11 @@ func (h *Handler) PublishDrug(c *gin.Context) {
 	description := c.PostForm("description")
 
 	renderErr := func(msg string) {
-		c.HTML(http.StatusOK, "add_drug.html", gin.H{
+		c.HTML(http.StatusOK, "add_dosage_drugs.html", gin.H{
 			"error":     msg,
-			"ActiveTab": "AddDrug",
+			"ActiveTab": "add_dosage_drugs",
 			"Step":      2,
-			"drug": ds.Drug{
+			"dosage_drugs": ds.Dosage_drugs{
 				ID:            id,
 				Title:         title,
 				AdultDose:     adultDose,
@@ -217,24 +217,24 @@ func (h *Handler) PublishDrug(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusFound, fmt.Sprintf("/drugs/%d", id))
+	c.Redirect(http.StatusFound, fmt.Sprintf("/dosage_drugs/%d", id))
 }
 
-// POST /drugs/delete
+// POST /dosage_drugs/delete
 func (h *Handler) DeleteDrug(c *gin.Context) {
 	id, err := strconv.Atoi(c.PostForm("drug_id"))
 	if err != nil {
-		c.Redirect(http.StatusFound, "/drugs/liked")
+		c.Redirect(http.StatusFound, "/dosage_drugs/liked")
 		return
 	}
 
 	if err := h.Repository.DeleteDrug(id); err != nil {
 		logrus.Error(err)
 	}
-	c.Redirect(http.StatusFound, "/drugs/liked")
+	c.Redirect(http.StatusFound, "/dosage_drugs/liked")
 }
 
-// GET /drugs/liked
+// GET /dosage_drugs/liked
 func (h *Handler) GetLikesDrug(c *gin.Context) {
 	minStr := c.Query("min")
 	maxStr := c.Query("max")
@@ -257,31 +257,31 @@ func (h *Handler) GetLikesDrug(c *gin.Context) {
 		minDose, maxDose = maxDose, minDose
 	}
 
-	drugs, err := h.Repository.FilterDrugsByDose(minDose, maxDose)
+	dosage_drugs, err := h.Repository.FilterDrugsByDose(minDose, maxDose)
 	if err != nil {
 		logrus.Error(err)
-		c.HTML(http.StatusOK, "likes_drug.html", gin.H{
+		c.HTML(http.StatusOK, "likes_dosage_drugs.html", gin.H{
 			"error":     "Ошибка загрузки",
-			"ActiveTab": "LikesDrug",
+			"ActiveTab": "likes_dosage_drugs",
 		})
 		return
 	}
 
 	type drugItem struct {
-		ds.Drug
+		ds.Dosage_drugs
 		LikeCount int64
 	}
 	var items []drugItem
-	for _, d := range drugs {
+	for _, d := range dosage_drugs {
 		items = append(items, drugItem{
-			Drug:      d,
+			Dosage_drugs:      d,
 			LikeCount: h.Repository.GetLikesCount(d.ID),
 		})
 	}
 
-	c.HTML(http.StatusOK, "likes_drug.html", gin.H{
-		"drugs":     items,
-		"ActiveTab": "LikesDrug",
+	c.HTML(http.StatusOK, "likes_dosage_drugs.html", gin.H{
+		"dosage_drugs":     items,
+		"ActiveTab": "likes_dosage_drugs",
 		"MinDose":   minDose,
 		"MaxDose":   maxDose,
 	})

@@ -27,24 +27,24 @@ func StartServer() {
     r.Static("/static", "./resources")
 
     // ---- HTML-роуты (ЛР-2) ----
-    r.GET("/drugs", h.GetDrug)
-    r.GET("/drugs/:id", h.GetDrug)
-    r.GET("/drugs/add", h.GetAddDrug)
-    r.GET("/drugs/liked", h.GetLikesDrug)
-    r.POST("/drugs/create", h.CreateDraft)
-    r.POST("/drugs/publish", h.PublishDrug)
-    r.POST("/drugs/delete", h.DeleteDrug)
+    r.GET("/dosage_drugs", h.GetDrug)
+    r.GET("/dosage_drugs/:id", h.GetDrug)
+    r.GET("/dosage_drugs/add", h.GetAddDrug)
+    r.GET("/dosage_drugs/liked", h.GetLikesDrug)
+    r.POST("/dosage_drugs/create", h.CreateDraft)
+    r.POST("/dosage_drugs/publish", h.PublishDrug)
+    r.POST("/dosage_drugs/delete", h.DeleteDrug)
 
     // ---- JSON API (ЛР-3) ----
     api := r.Group("/api")
     {
-        api.GET("/drugs", h.APIListDrugs)
-        api.GET("/drugs/feed", h.APIFeed)
-        api.GET("/drugs/draft", h.APIGetDraft)
-        api.POST("/drugs", h.APICreateDrug)
-        api.PUT("/drugs/:id/publish", h.APIPublishDrug)
-        api.DELETE("/drugs/:id", h.APIDeleteDrug)
-        api.POST("/drugs/:id/like", h.APILike)
+        api.GET("/dosage_drugs", h.APIListDrugs)
+        api.GET("/dosage_drugs/feed", h.APIFeed)
+        api.GET("/dosage_drugs/draft", h.APIGetDraft)
+        api.POST("/dosage_drugs", h.APICreateDrug)
+        api.PUT("/dosage_drugs/:id/publish", h.APIPublishDrug)
+        api.DELETE("/dosage_drugs/:id", h.APIDeleteDrug)
+        api.POST("/dosage_drugs/:id/like", h.APILike)
 
         api.POST("/users/register", h.APIRegister)
         api.POST("/users/login", h.APILogin)

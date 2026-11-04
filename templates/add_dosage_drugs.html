@@ -17,10 +17,10 @@
             {{ end }}
 
             {{ if eq .Step 1 }}
-            <form method="POST" action="/drugs/create" enctype="multipart/form-data">
+            <form method="POST" action="/dosage_drugs/create" enctype="multipart/form-data">
                 <div class="form-group">
                     <label>Название</label>
-                    <input type="text" name="title" value="{{ .drug.Title }}" required>
+                    <input type="text" name="title" value="{{ .dosage_drugs.Title }}" required>
                 </div>
 
                 <div class="form-group">
@@ -44,19 +44,19 @@
                 </div>
             </form>
             {{ else }}
-            <form method="POST" action="/drugs/publish">
-                <input type="hidden" name="id" value="{{ .drug.ID }}">
+            <form method="POST" action="/dosage_drugs/publish">
+                <input type="hidden" name="id" value="{{ .dosage_drugs.ID }}">
 
                 <div class="form-group">
                     <label>Название</label>
-                    <input type="text" name="title" value="{{ .drug.Title }}" required>
+                    <input type="text" name="title" value="{{ .dosage_drugs.Title }}" required>
                 </div>
 
                 <!-- Превью фото и видео (только для чтения) -->
                 <div class="media-preview-row">
                     <div class="media-preview-item">
-                        {{ if .drug.ImageKey }}
-                        <img src="http://localhost:9000/media/{{ .drug.ImageKey }}"
+                        {{ if .dosage_drugs.ImageKey }}
+                        <img src="http://localhost:9000/media/{{ .dosage_drugs.ImageKey }}"
                             alt="Фото"
                             onerror="this.onerror=null; this.src='/static/defaults/image.png';">
                         {{ else }}
@@ -65,8 +65,8 @@
                     </div>
 
                     <div class="media-preview-item">
-                        {{ if .drug.VideoKey }}
-                        <video src="http://localhost:9000/media/{{ .drug.VideoKey }}"
+                        {{ if .dosage_drugs.VideoKey }}
+                        <video src="http://localhost:9000/media/{{ .dosage_drugs.VideoKey }}"
                             autoplay muted loop playsinline
                             onerror="this.onerror=null; this.src='/static/defaults/video.mp4'; this.load();"></video>
                         {{ else }}
@@ -78,18 +78,18 @@
                 <div class="form-group">
                     <label>Доза</label>
                     <label style="font-size: 13px; margin-top:auto;">(взрослого)</label>
-                    <input type="number" name="adult_dose" value="{{ .drug.AdultDose }}" required min="1">
+                    <input type="number" name="adult_dose" value="{{ .dosage_drugs.AdultDose }}" required min="1">
                     <label>мг/кг</label>
                 </div>
                 <div class="form-group">
                     <label>Концентрация</label>
                     <input class="NoBorder" type="number" step="0.1" min="0"
-                        name="concentration_percent" value="{{ .drug.Concentration }}">
+                        name="concentration_percent" value="{{ .dosage_drugs.Concentration }}">
                     <label>%</label>
                 </div>
                 <div class="form-group DescriptionText">
                     <label>Дополнительная информация</label>
-                    <textarea rows="3" name="description">{{ .drug.Description }}</textarea>
+                    <textarea rows="3" name="description">{{ .dosage_drugs.Description }}</textarea>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="save-btn">Опубликовать</button>

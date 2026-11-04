@@ -5,7 +5,7 @@ import (
     "time"
 )
 
-type Drug struct {
+type Dosage_drugs struct {
     ID            int     `gorm:"primaryKey" json:"id"`
     Title         string  `gorm:"type:varchar(100);not null" json:"title"`
     Description   string  `gorm:"type:text" json:"description"`
@@ -21,5 +21,4 @@ type Drug struct {
     CreatedAt time.Time    `gorm:"not null" json:"created_at"`
     FormedAt  sql.NullTime `gorm:"default:null" json:"formed_at,omitempty"`
 
-    Likes []Like `gorm:"foreignKey:DrugID" json:"-"`
 }

@@ -14,7 +14,7 @@
                     <img src="/static/icons/filter.png" alt="Фильтр" class="icon">
                 </button>
 
-                <form action="/LikesDrug" method="GET" class="dose-filter" id="filterForm">
+                <form action="/dosage_drugs/liked" method="GET" class="dose-filter" id="filterForm">
                     <div class="range-values">
                         <span id="minValue">{{ .MinDose }}</span>
                         <span id="maxValue">{{ .MaxDose }}</span>
@@ -30,11 +30,11 @@
             </div>
 
             <div class="grid-container" id="gridContainer">
-                {{ if .drugs }}
-                {{ range .drugs }}
+                {{ if .dosage_drugs }}
+                {{ range .dosage_drugs }}
                 <div class="grid-item">
                     <div class="image-wrapper" style="background-image: url('/static/defaults/image.png'); background-size: cover; background-position: center;">
-                        <a href="/drugs/{{ .ID }}">
+                        <a href="/dosage_drugs/{{ .ID }}">
                             {{ if .ImageKey }}
                             <img src="http://localhost:9000/media/{{ .ImageKey }}" alt="{{ .Title }}">
                             {{ end }}
@@ -50,7 +50,7 @@
                             </div>
                         </a>
 
-                        <form action="/drugs/delete" method="POST" class="delete-form">
+                        <form action="/dosage_drugs/delete" method="POST" class="delete-form">
                             <input type="hidden" name="drug_id" value="{{ .ID }}">
                             <button type="submit" class="delete-btn" title="Удалить">
                                 <img src="/static/icons/delete.png" alt="Удалить" class="delete-icon">

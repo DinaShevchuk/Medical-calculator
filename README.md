@@ -23,7 +23,7 @@
 | password | varchar(100) | пароль (не отдаётся в JSON) |
 | is_moderator | bool | флаг модератора |
 
-### drugs
+### dosage_drugs
 | Поле | Тип | Описание |
 |---|---|---|
 | id | int | PK |
@@ -42,7 +42,7 @@
 | Поле | Тип | Описание |
 |---|---|---|
 | id | int | PK |
-| drug_id | int | FK → drugs.id |
+| drug_id | int | FK → dosage_drugs.id |
 | user_id | int | FK → users.id |
 
 ## HTTP API (все с префиксом `/api`)
@@ -51,13 +51,13 @@
 
 | Метод | URL | Описание | Тело / параметры |
 |---|---|---|---|
-| GET | /api/drugs | Список опубликованных с фильтром | `?search=Нуро` |
-| GET | /api/drugs/feed | Лента (без id) | — |
-| GET | /api/drugs/draft | Черновик текущего пользователя | — |
-| POST | /api/drugs | Создание (multipart) | `title`, `image`, `video` |
-| PUT | /api/drugs/:id/publish | Публикация | JSON: `title`, `adult_dose`, `concentration_percent`, `description` |
-| DELETE | /api/drugs/:id | Soft delete | — |
-| POST | /api/drugs/:id/like | Лайк 0/1 | JSON: `{"value": 1}` |
+| GET | /api/dosage_drugs | Список опубликованных с фильтром | `?search=Нуро` |
+| GET | /api/dosage_drugs/feed | Лента (без id) | — |
+| GET | /api/dosage_drugs/draft | Черновик текущего пользователя | — |
+| POST | /api/dosage_drugs | Создание (multipart) | `title`, `image`, `video` |
+| PUT | /api/dosage_drugs/:id/publish | Публикация | JSON: `title`, `adult_dose`, `concentration_percent`, `description` |
+| DELETE | /api/dosage_drugs/:id | Soft delete | — |
+| POST | /api/dosage_drugs/:id/like | Лайк 0/1 | JSON: `{"value": 1}` |
 
 ### Домен «пользователь»
 
