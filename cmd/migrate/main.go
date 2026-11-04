@@ -1,29 +1,46 @@
 package main
 
 import (
-    "github.com/joho/godotenv"
-    "gorm.io/driver/postgres"
-    "gorm.io/gorm"
+	"errors"
+	"strings"
 
-    "dosage_drugs/internal/app/ds"
-    "dosage_drugs/internal/app/dsn"
+	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	"dosage_drugs/internal/app/ds"
+	"dosage_drugs/internal/app/dsn"
 )
 
 func main() {
-    _ = godotenv.Load()
-    db, err := gorm.Open(postgres.Open(dsn.FromEnv()), &gorm.Config{})
-    if err != nil {
-        panic("failed to connect database")
-    }
+	_ = godotenv.Load()
+	db, err := gorm.Open(postgres.Open(dsn.FromEnv()), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
 
-    err = db.AutoMigrate(&ds.User{}, &ds.Dosage_drugs{}, &ds.Like{})
-    if err != nil {
-        panic("cant migrate db")
-    }
+	if err = db.AutoMigrate(&ds.User{}, &ds.Dosage_drugs{}, &ds.Like{}); err != nil {
+		panic("cant migrate db")
+	}
 
-    var count int64
-    db.Model(&ds.User{}).Where("login = ?", "test").Count(&count)
-    if count == 0 {
-        db.Create(&ds.User{Login: "test", Password: "test123", IsModerator: false})
-    }
+	hash, err := bcrypt.GenerateFromPassword([]byte("test123"), bcrypt.DefaultCost)
+	if err != nil {
+		panic("cant hash password")
+	}
+
+	// Тестовый пользователь test / test123. Если он остался с ЛР3 с паролем в открытом
+	// виде — заменяем пароль на bcrypt-хеш, иначе вход не сработает.
+	var u ds.User
+	err = db.Where("login = ?", "test").First(&u).Error
+	switch {
+	case errors.Is(err, gorm.ErrRecordNotFound):
+		db.Create(&ds.User{Login: "test", Password: string(hash)})
+	case err == nil:
+		if !strings.HasPrefix(u.Password, "$2") {
+			db.Model(&u).Update("password", string(hash))
+		}
+	default:
+		panic(err)
+	}
 }

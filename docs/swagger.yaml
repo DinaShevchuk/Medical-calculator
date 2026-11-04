@@ -1,0 +1,188 @@
+basePath: /api
+definitions:
+  handler.ErrorResponse:
+    properties:
+      message:
+        example: описание ошибки
+        type: string
+      status:
+        example: error
+        type: string
+    type: object
+  handler.LoginData:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      expires_in:
+        example: 3600
+        type: integer
+      token_type:
+        example: Bearer
+        type: string
+      user:
+        $ref: '#/definitions/handler.UserInfo'
+    type: object
+  handler.LoginRequest:
+    properties:
+      login:
+        example: test
+        type: string
+      password:
+        example: test123
+        type: string
+    type: object
+  handler.LoginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/handler.LoginData'
+      status:
+        example: success
+        type: string
+    type: object
+  handler.RegisterRequest:
+    properties:
+      login:
+        example: ivanov
+        type: string
+      password:
+        example: secret123
+        type: string
+    type: object
+  handler.RegisterResponse:
+    properties:
+      data:
+        $ref: '#/definitions/handler.UserInfo'
+      status:
+        example: success
+        type: string
+    type: object
+  handler.SuccessResponse:
+    properties:
+      message:
+        example: выполнено
+        type: string
+      status:
+        example: success
+        type: string
+    type: object
+  handler.UserInfo:
+    properties:
+      id:
+        example: 2
+        type: integer
+      login:
+        example: ivanov
+        type: string
+    type: object
+host: localhost:8090
+info:
+  contact: {}
+  description: Веб-сервис дозирования лекарств для детей. Чтение доступно гостю, методы
+    создателя — по JWT.
+  title: Dosage Drugs API
+  version: "1.0"
+paths:
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Проверяет логин и пароль, выдаёт JWT. Токен возвращается в теле
+        ответа и дополнительно ставится в HttpOnly-cookie access_token. Доступно гостю.
+      parameters:
+      - description: Логин и пароль
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Аутентификация
+      tags:
+      - users
+  /users/logout:
+    post:
+      description: Помещает текущий JWT в blacklist Redis (до истечения его срока)
+        и сбрасывает cookie. Доступно создателю.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Деавторизация
+      tags:
+      - users
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт нового пользователя. Пароль хранится в виде bcrypt-хеша.
+        Доступно гостю.
+      parameters:
+      - description: Логин и пароль
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.RegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Регистрация пользователя
+      tags:
+      - users
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    description: 'Введите: Bearer <access_token из /users/login>'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

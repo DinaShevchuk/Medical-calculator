@@ -1,19 +1,18 @@
 package handler
 
 import (
-    "fmt"
-    "net/http"
-    "os"                          // ← нужно
-    "strconv"
+	"fmt"
+	"net/http"
+	"strconv"
 
-    "dosage_drugs/internal/app/ds"
-    "dosage_drugs/internal/app/minio"     // ← нужно
-    "dosage_drugs/internal/app/repository"
+	"dosage_drugs/internal/app/ds"
+	"dosage_drugs/internal/app/minio"
 
-    "github.com/gin-gonic/gin"
-    "github.com/sirupsen/logrus"
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
+// GetDrug, GetAddDrug и остальные HTML-хендлеры
 func (h *Handler) GetDrug(c *gin.Context) {
 	idStr := c.Param("id")
 
@@ -75,23 +74,22 @@ func (h *Handler) GetDrug(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "dosage_drugs_info.html", gin.H{
-		"dosage_drugs":      dosage_drugs,
-		"likeCount": h.Repository.GetLikesCount(dosage_drugs.ID),
-		"ActiveTab": "dosage_drugs_info",
+		"dosage_drugs": dosage_drugs,
+		"likeCount":    h.Repository.GetLikesCount(dosage_drugs.ID),
+		"ActiveTab":    "dosage_drugs_info",
 	})
 }
 
-// GET /dosage_drugs/add
 func (h *Handler) GetAddDrug(c *gin.Context) {
 	stepStr := c.Query("step")
+	uid := currentUserID(c) // Берем ID из контекста JWT!
 
-	draft, err := h.Repository.GetDraftByCreator(repository.CurrentUserID)
-
+	draft, err := h.Repository.GetDraftByCreator(uid)
 	if err != nil {
 		c.HTML(http.StatusOK, "add_dosage_drugs.html", gin.H{
-			"ActiveTab": "add_dosage_drugs",
-			"Step":      1,
-			"dosage_drugs":      ds.Dosage_drugs{},
+			"ActiveTab":    "add_dosage_drugs",
+			"Step":         1,
+			"dosage_drugs": ds.Dosage_drugs{},
 		})
 		return
 	}
@@ -102,75 +100,70 @@ func (h *Handler) GetAddDrug(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "add_dosage_drugs.html", gin.H{
-		"dosage_drugs":      draft,
-		"ActiveTab": "add_dosage_drugs",
-		"Step":      step,
+		"dosage_drugs": draft,
+		"ActiveTab":    "add_dosage_drugs",
+		"Step":         step,
 	})
 }
 
-// POST /dosage_drugs/create
 func (h *Handler) CreateDraft(c *gin.Context) {
-    if existing, err := h.Repository.GetDraftByCreator(repository.CurrentUserID); err == nil && existing.ID != 0 {
-        c.Redirect(http.StatusFound, "/dosage_drugs/add?step=2")
-        return
-    }
+	uid := currentUserID(c) // Берем ID из контекста JWT!
 
-    title := c.PostForm("title")
-    if title == "" {
-        c.HTML(http.StatusOK, "add_dosage_drugs.html", gin.H{
-            "error":     "Название не может быть пустым",
-            "ActiveTab": "add_dosage_drugs",
-            "Step":      1,
-            "dosage_drugs":      ds.Dosage_drugs{},
-        })
-        return
-    }
+	if existing, err := h.Repository.GetDraftByCreator(uid); err == nil && existing.ID != 0 {
+		c.Redirect(http.StatusFound, "/dosage_drugs/add?step=2")
+		return
+	}
 
-    imageKey := ""
-    videoKey := ""
+	title := c.PostForm("title")
+	if title == "" {
+		c.HTML(http.StatusOK, "add_dosage_drugs.html", gin.H{
+			"error":        "Название не может быть пустым",
+			"ActiveTab":    "add_dosage_drugs",
+			"Step":         1,
+			"dosage_drugs": ds.Dosage_drugs{},
+		})
+		return
+	}
 
-    // Фото
-    if fh, err := c.FormFile("image"); err == nil && fh != nil {
-        tmp := "./tmp_" + fh.Filename
-        if err := c.SaveUploadedFile(fh, tmp); err == nil {
+	imageKey := ""
+	videoKey := ""
+
+	// Фото
+	if fh, err := c.FormFile("image"); err == nil && fh != nil {
+		tmp := "./tmp_" + fh.Filename
+		if err := c.SaveUploadedFile(fh, tmp); err == nil {
 			if err := minio.UploadFile(fh.Filename, tmp, fh.Header.Get("Content-Type")); err != nil {
 				logrus.Error("minio upload image error:", err)
 			} else {
 				imageKey = fh.Filename
 			}
-			_ = os.Remove(tmp)
-		} else {
-			logrus.Error("save image error:", err)
 		}
-    }
+	}
 
-    // Видео
-    if fh, err := c.FormFile("video"); err == nil && fh != nil {
-        tmp := "./tmp_" + fh.Filename
-        if err := c.SaveUploadedFile(fh, tmp); err == nil {
-            _ = minio.UploadFile(fh.Filename, tmp, fh.Header.Get("Content-Type"))
-            _ = os.Remove(tmp)
-            videoKey = fh.Filename
-        } else {
-            logrus.Error("save video error:", err)
-        }
-    }
+	// Видео
+	if fh, err := c.FormFile("video"); err == nil && fh != nil {
+		tmp := "./tmp_" + fh.Filename
+		if err := c.SaveUploadedFile(fh, tmp); err == nil {
+			_ = minio.UploadFile(fh.Filename, tmp, fh.Header.Get("Content-Type"))
+			videoKey = fh.Filename
+		}
+	}
 
-    _, err := h.Repository.CreateDraft(repository.CurrentUserID, title, imageKey, videoKey)
-    if err != nil {
-        logrus.Error(err)
-        c.HTML(http.StatusOK, "add_dosage_drugs.html", gin.H{
-            "error":     "Ошибка создания черновика: " + err.Error(),
-            "ActiveTab": "add_dosage_drugs",
-            "Step":      1,
-            "dosage_drugs":      ds.Dosage_drugs{Title: title},
-        })
-        return
-    }
+	_, err := h.Repository.CreateDraft(uid, title, imageKey, videoKey)
+	if err != nil {
+		logrus.Error(err)
+		c.HTML(http.StatusOK, "add_dosage_drugs.html", gin.H{
+			"error":        "Ошибка создания черновика: " + err.Error(),
+			"ActiveTab":    "add_dosage_drugs",
+			"Step":         1,
+			"dosage_drugs": ds.Dosage_drugs{Title: title},
+		})
+		return
+	}
 
-    c.Redirect(http.StatusFound, "/dosage_drugs/add?step=2")
+	c.Redirect(http.StatusFound, "/dosage_drugs/add?step=2")
 }
-// POST /dosage_drugs/publish
+
 func (h *Handler) PublishDrug(c *gin.Context) {
 	id, err := strconv.Atoi(c.PostForm("id"))
 	if err != nil {
@@ -220,7 +213,6 @@ func (h *Handler) PublishDrug(c *gin.Context) {
 	c.Redirect(http.StatusFound, fmt.Sprintf("/dosage_drugs/%d", id))
 }
 
-// POST /dosage_drugs/delete
 func (h *Handler) DeleteDrug(c *gin.Context) {
 	id, err := strconv.Atoi(c.PostForm("drug_id"))
 	if err != nil {
@@ -234,7 +226,6 @@ func (h *Handler) DeleteDrug(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/dosage_drugs/liked")
 }
 
-// GET /dosage_drugs/liked
 func (h *Handler) GetLikesDrug(c *gin.Context) {
 	minStr := c.Query("min")
 	maxStr := c.Query("max")
@@ -274,15 +265,15 @@ func (h *Handler) GetLikesDrug(c *gin.Context) {
 	var items []drugItem
 	for _, d := range dosage_drugs {
 		items = append(items, drugItem{
-			Dosage_drugs:      d,
-			LikeCount: h.Repository.GetLikesCount(d.ID),
+			Dosage_drugs: d,
+			LikeCount:    h.Repository.GetLikesCount(d.ID),
 		})
 	}
 
 	c.HTML(http.StatusOK, "likes_dosage_drugs.html", gin.H{
-		"dosage_drugs":     items,
-		"ActiveTab": "likes_dosage_drugs",
-		"MinDose":   minDose,
-		"MaxDose":   maxDose,
+		"dosage_drugs": items,
+		"ActiveTab":    "likes_dosage_drugs",
+		"MinDose":      minDose,
+		"MaxDose":      maxDose,
 	})
 }
